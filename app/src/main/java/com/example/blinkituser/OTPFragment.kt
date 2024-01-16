@@ -8,12 +8,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.blinkituser.databinding.FragmentOTPBinding
+import com.example.blinkituser.viewmodel.AuthViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 
 class OTPFragment : Fragment() {
 
+    private val viewModel:AuthViewModel by viewModels()
     private lateinit var binding:FragmentOTPBinding
     private lateinit var userNumber:String
 
@@ -26,12 +32,55 @@ class OTPFragment : Fragment() {
         getUserNumber()
         customizingEnteringOtp()
         sendOTP()
+        onLoginButtonClicked()
         onBackButtonClicked()
         return binding.root
     }
 
+    private fun onLoginButtonClicked() {
+        binding.btnLogin.setOnClickListener {
+            Utils.showDialog(requireContext(),"Signing you...")
+            val editTexts= arrayOf(binding.etOtp1,binding.etOtp2,binding.etOtp3,binding.etOtp4,binding.etOtp5,binding.etOtp6)
+            val otp = editTexts.joinToString("") {it.text.toString() }
+
+            if (otp.length<editTexts.size)
+            {
+                Utils.showToast(requireContext(),"Enter right OTP")
+            }
+            else {
+                editTexts.forEach { it.text?.clear(); it.clearFocus()}
+                verifyOTP(otp)
+            }
+        }
+    }
+
+    private fun verifyOTP(otp: String) {
+        
+      viewModel.signInWithPhoneAuthCredential(otp,userNumber)
+
+        lifecycleScope.launch {
+            viewModel.isSignedInSuccessfully.collect{
+                if (it){
+                    Utils.hideDialog()
+                    Utils.showToast(requireContext(),"Logged In")
+                }
+            }
+        }
+    }
+
     private fun sendOTP() {
        Utils.showDialog(requireContext(),"Sending OTP...")
+        viewModel.apply {
+            sendOTP(userNumber,requireActivity())
+            lifecycleScope.launch {
+                otpSent.collect{
+                    if (it){
+                        Utils.hideDialog()
+                        Utils.showToast(requireContext(),"OTP sent")
+                    }
+                }
+            }
+        }
     }
 
     private fun onBackButtonClicked() {

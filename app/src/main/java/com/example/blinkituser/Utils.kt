@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.example.blinkituser.databinding.ProgressDialogBinding
+import com.google.firebase.auth.FirebaseAuth
 
 object Utils {
 
@@ -24,5 +25,12 @@ object Utils {
     }
     fun hideDialog(){
         dialog?.dismiss()
+    }
+    private var firebaseAuthInstance:FirebaseAuth?=null
+    fun getAuthInstance():FirebaseAuth{
+        if (firebaseAuthInstance==null){
+            firebaseAuthInstance= FirebaseAuth.getInstance()
+        }
+        return firebaseAuthInstance!!
     }
 }
