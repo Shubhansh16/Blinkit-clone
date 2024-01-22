@@ -1,5 +1,6 @@
-package com.example.blinkituser
+package com.example.blinkituser.auth
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -7,13 +8,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.blinkituser.R
+import com.example.blinkituser.Utils
+import com.example.blinkituser.activity.UsersMainActivity
 import com.example.blinkituser.databinding.FragmentOTPBinding
+import com.example.blinkituser.models.Users
 import com.example.blinkituser.viewmodel.AuthViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -39,13 +42,13 @@ class OTPFragment : Fragment() {
 
     private fun onLoginButtonClicked() {
         binding.btnLogin.setOnClickListener {
-            Utils.showDialog(requireContext(),"Signing you...")
+            Utils.showDialog(requireContext(), "Signing you...")
             val editTexts= arrayOf(binding.etOtp1,binding.etOtp2,binding.etOtp3,binding.etOtp4,binding.etOtp5,binding.etOtp6)
             val otp = editTexts.joinToString("") {it.text.toString() }
 
             if (otp.length<editTexts.size)
             {
-                Utils.showToast(requireContext(),"Enter right OTP")
+                Utils.showToast(requireContext(), "Enter right OTP")
             }
             else {
                 editTexts.forEach { it.text?.clear(); it.clearFocus()}
@@ -55,28 +58,31 @@ class OTPFragment : Fragment() {
     }
 
     private fun verifyOTP(otp: String) {
-        
-      viewModel.signInWithPhoneAuthCredential(otp,userNumber)
+        val user= Users(uid = Utils.getCurrentUserId(), userPhoneNumber = userNumber, userAddress = null)
+
+      viewModel.signInWithPhoneAuthCredential(otp,userNumber, user)
 
         lifecycleScope.launch {
             viewModel.isSignedInSuccessfully.collect{
                 if (it){
                     Utils.hideDialog()
-                    Utils.showToast(requireContext(),"Logged In")
+                    Utils.showToast(requireContext(), "Logged In")
+                    startActivity(Intent(requireActivity(),UsersMainActivity::class.java))
+                    requireActivity().finish()
                 }
             }
         }
     }
 
     private fun sendOTP() {
-       Utils.showDialog(requireContext(),"Sending OTP...")
+        Utils.showDialog(requireContext(), "Sending OTP...")
         viewModel.apply {
             sendOTP(userNumber,requireActivity())
             lifecycleScope.launch {
                 otpSent.collect{
                     if (it){
                         Utils.hideDialog()
-                        Utils.showToast(requireContext(),"OTP sent")
+                        Utils.showToast(requireContext(), "OTP sent")
                     }
                 }
             }
@@ -122,7 +128,6 @@ class OTPFragment : Fragment() {
     private fun getUserNumber() {
         val bundle= arguments
         userNumber=bundle?.getString("number").toString()
-
         binding.tvUserNumber.text=userNumber
     }
 }

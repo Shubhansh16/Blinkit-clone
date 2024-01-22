@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#ffbe0b"
     android:layout_height="match_parent"
-    tools:context=".SplashFragment">
+    tools:context=".auth.SplashFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -1,4 +1,4 @@
-package com.example.blinkituser
+package com.example.blinkituser.auth
 
 import android.os.Build
 import android.os.Bundle
@@ -8,10 +8,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.widget.addTextChangedListener
 import androidx.navigation.fragment.findNavController
+import com.example.blinkituser.R
+import com.example.blinkituser.Utils
 import com.example.blinkituser.databinding.FragmentSignInBinding
 
 class SignInFragment : Fragment() {
@@ -35,7 +35,7 @@ class SignInFragment : Fragment() {
 
           if (number.isEmpty()||number.length!=10)
           {
-             Utils.showToast(requireContext(),"Enter valid phone number")
+              Utils.showToast(requireContext(), "Enter valid phone number")
           }
           else
           {
@@ -80,7 +80,7 @@ class SignInFragment : Fragment() {
 
     private fun setStatusBarColor(){
         activity?.window?.apply {
-            val statusBarColors = ContextCompat.getColor(requireContext(),R.color.yellow)
+            val statusBarColors = ContextCompat.getColor(requireContext(), R.color.yellow)
             statusBarColor=statusBarColors
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
                 decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
